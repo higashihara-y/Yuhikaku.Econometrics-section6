@@ -177,14 +177,135 @@ summary(model6f_2r)
 
 # 6-10-3
 fixest::feols(emp.rate ~ cap.rate | pref,
-              cluster = ~pref, data = data610) |> 
-  r2()
-
+              cluster = ~pref, data = data610) |> r2()
 
 # 6-10-4
 fixest::feols(emp.rate ~ cap.rate | pref + year,
-              cluster = ~pref, data = data610) |> 
-  r2()
+              cluster = ~pref, data = data610) |> r2()
+
+
+
+# ------------------------------------------------------
+# 6-11
+data611 <- haven::read_dta("timss.dta")
+glimpse(data611)
+
+# 6-11-1
+# クラスターに頑健な標準誤差でも、早生まれは4-6月生まれに比べ有意に低い
+model611_1 <- lm_robust(mathscore ~ agese_q2 + agese_q3 + agese_q4,
+                        clusters = idschool, se_type = "stata",
+                        data = data611)
+summary(model611_1)
+
+model611_1f <- feols(mathscore ~ agese_q2 + agese_q3 + agese_q4,
+                     cluster = ~idschool, data = data611)
+summary(model611_1f)
+
+
+# 6-11-2
+# 学校固定効果を含めたモデルを用い、クラスターに頑健な標準誤差で推計した場合でも、早生まれは4-6月生まれに比べ有意に低い
+model611_2 <- lm_robust(mathscore ~ agese_q2 + agese_q3 + agese_q4,
+                        clusters = idschool, fixed_effects = idschool,
+                        se_type = "stata", data = data611)
+summary(model611_2)
+
+model611_2f <- feols(mathscore ~ agese_q2 + agese_q3 + agese_q4
+                     | idschool,
+                     cluster = ~idschool, data = data611)
+summary(model611_2f)
+
+# ｜の後ろに固定効果変数を追加する代わりに、formulaに直接変数追加することで、Stataと同じ標準誤差が得られる
+model611_2f2 <- feols(mathscore ~ agese_q2 + agese_q3 + agese_q4
+                     + factor(idschool),
+                     cluster = ~idschool, data = data611)
+summary(model611_2f2)
+
+
+# 6-11-3
+# その他共変量を加えたモデルを用い、クラスターに頑健な標準誤差で推計した場合でも、早生まれは4-6月生まれに比べ有意に低い
+model611_3 <- lm_robust(mathscore ~ agese_q2 + agese_q3 + agese_q4
+                        + comu_1 + comu_2 + comu_3 + comu_4 + comu_5
+                        + computer
+                        + numpeople
+                        + mothereduc_1 + mothereduc_2 + mothereduc_3
+                        + mothereduc_4 + mothereduc_5
+                        + fathereduc_1 + fathereduc_2 + fathereduc_3
+                        + fathereduc_4 + fathereduc_5,
+                        clusters = idschool, se_type = "stata",
+                        data = data611)
+summary(model611_3)
+
+model611_3f <- feols(mathscore ~ agese_q2 + agese_q3 + agese_q4
+                        + comu_1 + comu_2 + comu_3 + comu_4 + comu_5
+                        + computer
+                        + numpeople
+                        + mothereduc_1 + mothereduc_2 + mothereduc_3
+                        + mothereduc_4 + mothereduc_5
+                        + fathereduc_1 + fathereduc_2 + fathereduc_3
+                        + fathereduc_4 + fathereduc_5,
+                        cluster = ~idschool, data = data611)
+summary(model611_3f)
+
+
+# 6-11-4
+# 学校固定効果を含め、その他共変量を加えたモデルを用い、クラスターに頑健な標準誤差で推計した場合でも、早生まれは4-6月生まれに比べ有意に低い
+# comu_x変数に多重共線性が生じる
+model611_4 <- lm_robust(mathscore ~ agese_q2 + agese_q3 + agese_q4
+                        + comu_1 + comu_2 + comu_3 + comu_4 + comu_5
+                        + computer
+                        + numpeople
+                        + mothereduc_1 + mothereduc_2 + mothereduc_3
+                        + mothereduc_4 + mothereduc_5
+                        + fathereduc_1 + fathereduc_2 + fathereduc_3
+                        + fathereduc_4 + fathereduc_5,
+                        clusters = idschool, fixed_effects = idschool,
+                        se_type = "stata", data = data611)
+summary(model611_4)
+
+model611_4f <- feols(mathscore ~ agese_q2 + agese_q3 + agese_q4
+                     + comu_1 + comu_2 + comu_3 + comu_4 + comu_5
+                     + computer
+                     + numpeople
+                     + mothereduc_1 + mothereduc_2 + mothereduc_3
+                     + mothereduc_4 + mothereduc_5
+                     + fathereduc_1 + fathereduc_2 + fathereduc_3
+                     + fathereduc_4 + fathereduc_5
+                     | idschool,
+                     cluster = ~idschool, data = data611)
+summary(model611_4f)
+
+# ｜の後ろに固定効果変数を追加する代わりに、formulaに直接変数追加することで、Stataと同じ標準誤差が得られる
+model611_4f2 <- feols(mathscore ~ agese_q2 + agese_q3 + agese_q4
+                     + comu_1 + comu_2 + comu_3 + comu_4 + comu_5
+                     + computer
+                     + numpeople
+                     + mothereduc_1 + mothereduc_2 + mothereduc_3
+                     + mothereduc_4 + mothereduc_5
+                     + fathereduc_1 + fathereduc_2 + fathereduc_3
+                     + fathereduc_4 + fathereduc_5
+                     + factor(idschool),
+                     cluster = ~idschool, data = data611)
+summary(model611_4f2) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
