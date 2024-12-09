@@ -14,6 +14,43 @@ data610 <- data610 |>
   filter(hh.type == "all")
 
 
+# 表6-3
+vars <- data610 |> 
+  select(emp.rate, cap.rate, age, age.hus, emp.rate.hus, urate)
+
+table63 <- modelsummary::datasummary(
+  All(vars) ~ N + Mean + SD + Min + Max,
+  output = "data.frame",
+  data = data610,
+  fmt = 3
+)
+
+colnames(table63) <- c("変数名", "サンプルサイズ", "平均",
+                       "標準偏差", "最小値", "最大値")
+
+table63[, 1] <- c("母親就業率", "保育所定員率", "母親平均年齢",
+                  "父親平均年齢", "父親就業率", "失業率")
+
+gt::gt(table63)
+
+
+# 表6-4
+table64 <- modelsummary::datasummary(
+  emp.rate * (Mean + SD) + cap.rate * (Mean + SD) ~ factor(year),
+  data = data610,
+  output = "data.frame",
+  fmt = 3
+)
+
+colnames(table64) <- c("変数", " ", "2000", "2005", "2010")
+
+table64[, 1] <- c("母親就業率","", "保育所定員率","")
+table64[, 2] <- c("平均", "標準偏差","平均", "標準偏差")
+
+gt::gt(table64)
+
+
+
 # 6-10-1
 # 各モデルの推計を、lm_robust,feolsの2つの関数で実施
 # (1)
